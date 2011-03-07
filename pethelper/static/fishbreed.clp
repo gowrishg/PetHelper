@@ -1,0 +1,537 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;DEFTEMPLATE;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;; Final Output Template for Fish Breeds
+(deftemplate FishBreed
+	(slot BreedName)
+	(slot cf)
+)
+
+(deftemplate WorkingFishBreed
+	(slot BreedName)
+	(slot cf)
+)
+(deftemplate FishPurposes
+	(multislot purposes)
+)
+
+(deftemplate FishAllowedBreeds
+	(multislot Name)
+)
+(deftemplate Next-Question-Fish
+	(slot QuestionKey)
+)
+
+(deffunction FishAssignCFForBreed
+	(?breeds ?cf)
+	(foreach ?val ?breeds
+		(assert (WorkingFishBreed (BreedName ?val)(cf ?cf)))
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;DEFINING RULES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;----------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;combine certainty factors for multiple conclusions
+;cf(cf1,cf2) = cf1 + cf2 * (1- cf1)
+;; Here,,, cf(cf1,cf2) = (cf1 + cf2)/2
+
+(defrule combine-positive-cf-Fish
+ 	?f1 <- (FishBreed (BreedName ?pet1)(cf ?cf1))
+	?f2 <- (WorkingFishBreed (BreedName ?pet2)(cf ?cf2))
+	(test (eq ?pet1 ?pet2))
+	=>
+	(retract ?f2)
+	(modify ?f1 (cf =(/ (+ ?cf2 ?cf1) 2)))
+	;(modify ?f1 (cf =(+ ?cf2 ?cf1)))
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Fish 	Breed CF based on Size;;;;;;;;;;;;;;;
+(defrule FishBreedSizeCF
+	(FishAllowedBreeds (Name $?d))
+	(size ?t)
+	=>
+	(if 
+		(eq ?t Small)
+		then 
+			(bind ?selectedBreeds (create$ fish_bkl fish_ae fish_gtb fish_gpt))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.4)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t Medium)
+		then 
+			(bind ?selectedBreeds (create$ fish_gae fish_se fish_rs ))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t Large)
+		then 
+			(bind ?selectedBreeds (create$ fish_bgk fish_rtb ))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.3)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Fish 	Breed CF based on Cost;;;;;;;;;;;;;;;
+(defrule FishBreedCostCF
+	(FishAllowedBreeds (Name $?d))
+	(cost ?t)
+	=>
+	(if 
+		(eq ?t Concerned)
+		then 
+			(bind ?selectedBreeds (create$ fish_gae fish_gpt fish_ae fish_bgk))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t Reasonable)
+		then 
+			(bind ?selectedBreeds (create$  fish_bkl fish_gtb fish_se fish_rs fish_gae fish_gpt fish_ae fish_bgk))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t NotConcerned )
+		then 
+			(bind ?selectedBreeds (create$ fish_rtb fish_bkl fish_gtb fish_se fish_rs fish_gae fish_gpt fish_ae fish_bgk))
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Fish 	Breed CF based on nature;;;;;;;;;;;;;;;
+(defrule FishBreedNatureCF
+	(FishAllowedBreeds (Name $?d))
+	(nature ?t)
+	=>
+	(if 
+		(eq ?t Quiet)
+		then 
+			(bind ?selectedBreeds (create$ fish_rtb fish_ae fish_bkl))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.7)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t Energetic)
+		then 
+			(bind ?selectedBreeds (create$  fish_gtb fish_bgk))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t NotConcerned)
+		then 
+			(bind ?selectedBreeds (create$ gtb))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.9)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Fish 	Breed CF based on veg;;;;;;;;;;;;;;;
+(defrule FishBreedVegCF
+	(FishAllowedBreeds (Name $?d))
+	(veg ?t)
+	=>
+	(if 
+		(eq ?t NotConcerned)
+		then 
+			(bind ?selectedBreeds (create$ fish_bgk fish_se fish_gpt fish_rtb))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.9)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t Yes)
+		then 
+			(bind ?selectedBreeds (create$  fish_gtb fish_rs fish_rtb fish_ae fish_gae fish_bkl))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.3)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Fish 	Breed CF based on color;;;;;;;;;;;;;;;
+(defrule FishBreedColorCF
+	(FishAllowedBreeds (Name $?d))
+	(fish_color ?t)
+	=>
+	(if 
+		(eq ?t fish_golden)
+		then 
+			(bind ?selectedBreeds (create$ fish_gae fish_ae fish_gtb fish_rtb))
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_colourful)
+		then 
+			(bind ?selectedBreeds (create$  fish_rs fish_rtb ))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.7)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_black)
+		then 
+			(bind ?selectedBreeds (create$  fish_bgk fish_bkl))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.3)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_nothing)
+		then 
+			(bind ?selectedBreeds (create$ fish_se ))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.9)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Fish 	Breed CF based on decoration;;;;;;;;;;;;;;;
+(defrule FishBreedDecorationCF
+	(FishAllowedBreeds (Name $?d))
+	(fish_decorations ?t)
+	=>
+	(if 
+		(eq ?t fish_low)
+		then 
+			(bind ?selectedBreeds (create$ fish_gtb fish_gpt fish_rtb))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.7)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_high)
+		then 
+			(bind ?selectedBreeds (create$  fish_bkl fish_ae fish_se fish_rs))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.4)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_avg)
+		then 
+			(bind ?selectedBreeds (create$  fish_gae fish_bgk))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.5)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Fish 	Breed CF based on plant;;;;;;;;;;;;;;;
+(defrule FishBreedPlantCF
+	(FishAllowedBreeds (Name $?d))
+	(fish_plant ?t)
+	=>
+	(if 
+		(eq ?t fish_never)
+		then 
+			(bind ?selectedBreeds (create$ fish_gtb fish_gpt ))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.5)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_avg)
+		then 
+			(bind ?selectedBreeds (create$  fish_bkl fish_rtb fish_rs))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.7)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_lots)
+		then 
+			(bind ?selectedBreeds (create$   fish_se fish_gae fish_ae fish_bgk))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.8)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Fish 	Breed CF based on expert;;;;;;;;;;;;;;;
+(defrule FishBreedExpertCF
+	(FishAllowedBreeds (Name $?d))
+	(fish_expert ?t)
+	=>
+	(if 
+		(eq ?t fish_yes)
+		then 
+			(bind ?selectedBreeds (create$ fish_gtb ))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_no)
+		then 
+			(bind ?selectedBreeds (create$  fish_bkl fish_rtb fish_gpt fish_bgk))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_watched)
+		then 
+			(bind ?selectedBreeds (create$   fish_se fish_gae fish_ae fish_rs))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 0.8)
+	)
+)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Fish 	Breed CF based on tanksize;;;;;;;;;;;;;;;
+(defrule FishBreedTankSizeCF
+	(FishAllowedBreeds (Name $?d))
+	(fish_tanksize ?t)
+	=>
+	
+	(if 
+		(eq ?t fish_big_small)
+		then 
+			(bind ?selectedBreeds (create$ fish_gtb fish_gpt fish_ae))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.7)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_big_big)
+		then 
+			(bind ?selectedBreeds (create$ fish_rtb fish_bgk ))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.4)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_small_big)
+		then 
+			(bind ?selectedBreeds (create$ fish_rtb fish_bgk fish_gae))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.5)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_small_small)
+		then 
+			(bind ?selectedBreeds (create$   fish_gpt))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	
+	(if 
+		(eq ?t fish_no)
+		then 
+			(bind ?selectedBreeds (create$   fish_se fish_rs))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.8)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Fish 	Breed CF based on expert;;;;;;;;;;;;;;;
+(defrule FishBreedVarietyCF
+	(FishAllowedBreeds (Name $?d))
+	(fish_variety ?t)
+	=>
+	(if 
+		(eq ?t fish_fight_own)
+		then 
+			(bind ?selectedBreeds (create$ fish_bgk fish_rs ))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_fight)
+		then 
+			(bind ?selectedBreeds (create$  fish_gae fish_gtb fish_rtb))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+	(if 
+		(eq ?t fish_peace)
+		then 
+			(bind ?selectedBreeds (create$   fish_bkl fish_gae fish_ae fish_se fish_gpt))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (FishAssignCFForBreed (create$ ?value) 0.4)
+				)
+			)
+			(FishAssignCFForBreed ?selectedBreeds 1)
+	)
+)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;RULE TO RETRACT 3 QUESTION AND INSERT 3 QUESTIONS;;;;;;
+(defrule FishInsertQuestionRule1
+	(fish_color ?exe)
+	(fish_decorations ?tra)
+	(fish_plant ?gro)
+	?a <- (Next-Question-Fish (QuestionKey fish_color))
+	?b <- (Next-Question-Fish (QuestionKey fish_decorations))
+	?c <- (Next-Question-Fish (QuestionKey fish_plant))
+	=>
+	(retract ?a ?b ?c)
+	(assert (Next-Question-Fish (QuestionKey fish_expert)))
+	(assert (Next-Question-Fish (QuestionKey fish_tanksize)))
+	(assert (Next-Question-Fish (QuestionKey fish_variety)))
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;RULE TO RETARCT ALL QUESTIONS ;;;;;;;;;;;;;;;;;;;;;;;;;
+(defrule FishRetractAllQuestions
+	(fish_expert ?exe)
+	(fish_tanksize ?tra)
+	(fish_variety ?gro)
+	?a <- (Next-Question-Fish (QuestionKey fish_expert))
+	?b <- (Next-Question-Fish (QuestionKey fish_tanksize))
+	?c <- (Next-Question-Fish (QuestionKey fish_variety))
+	=>
+	(retract ?a ?b ?c)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;DEFFACTS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(deffacts FishSample
+		;;;;;;;;;;;;;;;;; FROM PETS ;;;;;;;;;;;;;;
+				
+	;(cost Concerned)		;; Possible Values - Concerned , Reasonable, NotConcerned
+	;(size Large)			;; Possible Values - Small, Medium, Large
+	;(nature Quiet)			;; Possible Values - Energetic, Quiet, Noisy
+	;(veg NotConcerned)		;; Possible Values - Yes, No, NotConcerned
+
+		;;;;;;;;;;;;;;;;;DOG SPECIFIC ;;;;;;;;;;;;
+	;(fish_color fish_golden)			;; Possible Values - fish_golden, fish_colourful,fish_black, fish_nothing 
+	;(fish_decorations fish_high)			;; Possible Values - fish_low, fish_avg, fish_high
+	;(fish_plant fish_never)			;; Possible Values - fish_never, fish_avg, fish_lots 
+	;(fish_expert fish_yes)			;; Possible Values - fish_yes, fish_no , fish_watched
+	;(fish_tanksize fish_big_big)			;; Possible Values - fish_big_big, fish_small_big, fish_big_small, fish_small_small, fish_no 
+	;(fish_variety fish_fight_own)		;; Possible Values - fish_fight_own,fish_fight, fish_peaceful 
+	
+	(FishAllowedBreeds (Name 
+			fish_bkl
+			fish_gae
+			fish_ae
+			fish_bgk
+			fish_gtb
+			fish_se
+			fish_gpt
+			fish_rs
+			fish_rtb
+			)
+	)
+	(FishBreed (BreedName fish_bkl)(cf 0.0))
+	(FishBreed (BreedName fish_gae)(cf 0.0))
+	(FishBreed (BreedName fish_ae)(cf 0.0))
+	(FishBreed (BreedName fish_bgk)(cf 0.0))
+	(FishBreed (BreedName fish_gtb)(cf 0.0))
+	(FishBreed (BreedName fish_se)(cf 0.0))
+	(FishBreed (BreedName fish_gpt)(cf 0.0))
+	(FishBreed (BreedName fish_rs)(cf 0.0))
+	(FishBreed (BreedName fish_rtb)(cf 0.0))
+	
+	(Next-Question-Fish (QuestionKey fish_color))
+	(Next-Question-Fish (QuestionKey fish_decorations))
+	(Next-Question-Fish (QuestionKey fish_plant))
+)	

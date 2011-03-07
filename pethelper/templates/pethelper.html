@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html" />
+<?python
+from turbogears.i18n.format import format_date
+def dateandtime(d):
+    return format_date(d, format="full", time_format=" @ %X %Z")
+menu_top = [
+('Welcome','/', True),
+]
+?>
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+    <title>PetHelper - Know your pet</title>
+</head>
+<body>
+    <!--! template functions -->
+    <span py:def="code(codestring)" py:content="codestring" class="code" />
+
+    <div class="content-section">
+			<div py:if="len(chartplot)>2"  id="sb_top" class="sidebar">
+				<h2>Likeliness</h2>
+				<p>Pet prediction: <b> (click graph points for details) </b> </p>
+				<span id="pet_legend"></span>
+				<div id="pet_placeholder" class="graphprop"></div>
+				
+				<p>Chance of selecting:</p>
+					<ul>
+					<li	py:for="pet_details in pet_list_sorted"> 
+						${pet_details.pet_name} - ( ${pet_details.score} % )
+						<ul>
+							<li	py:for="breed_details in pet_details.breed_list"> 
+									${breed_details.breed_name} - ( ${breed_details.score} % )
+							</li>
+						</ul>
+					</li>
+					</ul>
+			</div>
+			<!--! Normal content: Stuff that's not in the left or right column. !-->
+			<div class="q_ans">
+				<form method="post" action="next" name="qa_preview">
+					<input type="hidden" name="qg_no" id="qg_no" value="${cur_qg_no}" />
+					<div py:if="preview==1" class="qa_ro">
+						<input name="action" id="action_next" class="qa_ro_action_button" type="button" value="Go Back" onClick="history.go(-1)" />
+					</div>
+				</form>
+				<div id="qg_desc" class="qg_desc"> 
+					<span class="qg_desc_no" >${qg.qg_no}.</span>
+					<span py:content="qg.desc" /></div>
+				<div py:for="q in qg.q_list">
+					<div id="question" class="question">
+						<span py:for="q_key in q.q" >${q.q[q_key]}</span>
+					</div>
+					<div class="answer">
+						<py:choose>
+						<div py:when="q.check_yes==1">
+							<div py:for="answer in q.a" py:strip="True" >
+								<br />
+								<py:choose>
+								<div py:for="answer_key in answer"> 
+									<input onclick="multi_answer(this)" name="sel_a${q.q_no}" value="${qg.qg_no}@#^${q.q_no}@#^${answer}" type="checkbox" checked="true" py:when="answer_key in q.sel_multi_a" > ${answer[answer_key]} </input>
+								</div>
+								<div py:for="answer_key in answer"> 
+									<input onclick="multi_answer(this)" name="sel_a${q.q_no}" value="${qg.qg_no}@#^${q.q_no}@#^${answer}" type="checkbox" py:otherwise="" > ${answer[answer_key]} </input>
+								</div>
+								</py:choose>
+							</div>
+						</div>
+						<div py:otherwise="">
+							<div py:for="answer in q.a" py:strip="True" >
+								<py:choose>
+								<div py:for="answer_key in answer"> 
+									<input onclick="single_answer(this)" name="sel_a${q.q_no}" value="${qg.qg_no}@#^${q.q_no}@#^${answer}" type="radio" checked="true" py:when="answer_key in q.sel_multi_a" > ${answer[answer_key]} </input>
+								</div>
+								<div py:for="answer_key in answer"> 
+									<input onclick="single_answer(this)" name="sel_a${q.q_no}" value="${qg.qg_no}@#^${q.q_no}@#^${answer}" type="radio" py:otherwise="" > ${answer[answer_key]} </input>
+								</div>
+								</py:choose>
+							</div>
+						</div>
+						</py:choose>
+					</div>
+				</div>
+				<form method="post" action="next" name="qa_form">
+					<input type="hidden" name="cur_qg_no" id="cur_qg_no" value="${cur_qg_no}" />
+					<div py:if="preview==0" >
+						<div class="action_buttons" >
+							<input name="action" id="action_restart" class="action_button" type="submit" value="restart" />
+							<!--
+							<input name="action" id="action_pre" class="action_button" type="submit" value="previous" />
+							-->
+							<input name="action" id="action_next" class="action_button" type="submit" value="next" />
+						</div>
+					</div>
+				</form>
+			</div>
+	</div>
+	<script id="source" language="javascript" type="text/javascript">
+		function single_answer(obj){
+			val_array = obj.value.split('@#^');
+			if(obj.checked) {
+				loadJSONDoc("single_answer", { "sel_a": val_array[2], "qg_no": val_array[0], "q_no" : val_array[1] });
+			} else {
+				deselect_answer(val_array)
+			}
+		}
+
+		function multi_answer(obj){
+			val_array = obj.value.split('@#^');
+			if(obj.checked) {
+				loadJSONDoc("multi_answer", { "sel_a": val_array[2], "qg_no": val_array[0], "q_no" : val_array[1] });
+			} else {
+				deselect_answer(val_array)
+			}
+		}
+
+		function deselect_answer(val_array){
+			loadJSONDoc("deselect_answer", { "sel_a": val_array[2], "qg_no": val_array[0], "q_no" : val_array[1] });
+		}
+
+		$(function () {
+			// setup plot
+			function getData() {
+				return ${chartplot};
+			}
+
+			var options = {
+				legend: { show: true, noColumns:4, backgroundOpacity: 0, container: document.getElementById("pet_legend") },
+				lines: { show: true , clickable:true, hoverable: true},
+				points: { show: true },
+				yaxis: { noTicks: 2, min:0, max:100 , tickFormatter: function (val, axis) { return val+ "%" }  },
+				xaxis: { noTicks:${PHASE_1_Q}, min:1, max:${PHASE_1_Q} , tickFormatter: function (val, axis) { return "Group-"+val }  },
+				selection: { mode: "xy" },
+				grid: {clickable: true, hoverable: true},
+				series: {lines: {show:true}, points: {show:true}},
+			};
+
+
+			var plotData = getData();
+
+			var plot = $.plot($("#pet_placeholder"), plotData, options);
+
+			// now connect the two
+			var internalSelection = false;
+
+			function showTooltip(x, y, contents) {
+				$('<div id="tooltip">' + 'Group-' + contents[0] + '</div>').css( {
+					position: 'absolute',
+					display: 'none',
+					top: y + 5,
+					left: x + 5,
+					border: '1px solid #fdd',
+					padding: '2px',
+					'background-color': '#fee',
+					opacity: 0.80
+				}).appendTo("body").fadeIn(200);
+			}
+
+			$("#pet_placeholder").bind("plotclick", function (event, pos, item) {
+				if (item) {
+					x = item.datapoint[0];
+					y = item.datapoint[1];
+					document.getElementById('qg_no').value = x;
+					document.qa_preview.submit();
+					plot.highlight(item.series, item.datapoint);
+				}
+			});
+
+			$("#pet_placeholder").bind("plothover", function (event, pos, item) {
+				$("#x").text(pos.x.toFixed(2));
+				$("#y").text(pos.y.toFixed(2));
+
+					if (item) {
+						if (item.previousPoint != item.datapoint) {
+							previousPoint = item.datapoint;
+							
+							x = item.datapoint[0];
+							y = item.datapoint[1];
+
+							$("#tooltip").remove();
+							
+							showTooltip(item.pageX, item.pageY,
+										item.datapoint);
+						}
+						} else {
+							$("#tooltip").remove();
+						}
+			});
+		});
+	</script>
+</body>
+</html>

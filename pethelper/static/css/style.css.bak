@@ -1,0 +1,288 @@
+html {
+	background: #555 url('../images/pagebg.png') top left repeat-x;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	text-align: left;
+	width: 960px;
+	margin: 0 auto;
+	padding: 0;
+	font-size: 12px;
+	font-family: "Lucida Grande","Lucida Sans Unicode",geneva,verdana,sans-serif;
+}
+
+a {
+	color: #286571;
+}
+
+#header {
+	height: 60px;
+	margin: 10px 10px 0 10px;
+	background: url('../images/headerbg.png') top left no-repeat;
+}
+
+#header h1 {
+	padding: 0;
+	margin: 0;
+	padding-top: 5px;
+	padding-left: 100px;
+	color: #fff;
+	position: relative;
+	font-size: 25px;
+}
+
+#header h1 .subtitle {
+	font-size: 60%;
+	position: absolute;
+	left: 200px;
+	top: 35px;
+}
+
+ul#mainmenu {
+	margin: 0 10px;
+	padding: 0px;
+	background: url('../images/menubg.png') top left no-repeat;
+	height: 38px;
+}
+
+ul#mainmenu li {
+	list-style-type: none;
+	display: inline;
+	float: left;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+	vertical-align: middle;
+	line-height: 30px;
+	position: relative;
+}
+
+ul#mainmenu li span {
+	color: #3fa1ad;
+	float: left;
+	padding: 0 5px;
+}
+
+ul#mainmenu li a {
+	color: #fff;
+	float: left;
+	height: 31px;
+	display: block;
+	padding: 0 10px;
+	text-decoration: none;
+	background: url('../images/menu-item-border.png') left top no-repeat;
+}
+
+ul#mainmenu li a:hover, ul#mainmenu li a.active {
+	background: url('../images/menu-item-actibg.png') left top no-repeat;
+}
+
+ul#mainmenu li.first a {
+	background: none;
+}
+
+ul#mainmenu li.first a:hover, ul#mainmenu li.first a.active {
+	background: url('../images/menu-item-actibg-first.png') left top no-repeat;
+}
+
+ul#mainmenu li.loginlogout
+{
+	float: right;
+	right: 10px;
+}
+
+ul#mainmenu li.loginlogout a:hover {
+	background: url('../images/menu-item-border.png') left top no-repeat;
+}
+
+#content {
+	background: #fff url('../images/contentbg.png') left bottom no-repeat;
+	margin : 0 10px 10px 10px;
+	padding: 0 10px;
+	overflow: hidden;
+}
+
+#content .currentpage {
+	margin-top: 0;
+}
+
+/* Sidebar */
+
+.sidebar {
+	float: right;
+	border: 1px solid #cce;
+	background-color: #eee;
+	margin-left: 1.5em;
+	margin-bottom: 1.5em;
+	padding: 1em;
+	width: 250px;
+	font-size: 88%;
+}
+
+.sidebar h2 {
+	margin-top: 0;
+	color: black;
+}
+
+.sidebar ul {
+	margin-left: 1.5em;
+	padding-left: 0;
+}
+
+.question , .qg_desc {
+	padding: 5px; 
+	margin-left: 20px; 
+	margin-right: 20px; 
+	margin-top: 5px;
+	font-weight:bold;
+	background-color: #d2fbff;
+}
+	
+.answer, .action_buttons {
+	margin-left: 40px; 
+	margin-right: 25px;
+	margin-top: 5px;
+}
+
+
+.qg_desc {
+	color:#000000; 
+	background-color:#FFFFFF;
+	font-size:25px;
+}
+
+.q_ans , .qa_ro {
+	display: block;
+	width: 640px;
+	height: 500px;
+}
+
+.qa_ro {
+	background-color: #EEEEEE;
+	position:absolute; 
+	opacity:0.6;
+	filter:alpha(opacity=60);
+}
+
+.action_button, qa_ro_action_button {
+	width:100px; 
+	margin-top:10px;
+}
+
+.qa_ro_action_button {
+	float: right;
+	margin-right: 20px;
+	margin-top: 10px;
+	opacity: 1;
+	
+}
+
+.action_buttons {
+	padding-top : 10px;
+	text-align:right;
+}
+
+.graphprop {
+	float: left;
+	margin: 0px 0px 10px 0px;
+	height: 150px;
+	width: 100%;
+}
+
+.graphprop_block {
+	display: inline-block;
+	background-color:#EEEEEE;
+	border:1px solid #CCCCEE;
+}
+
+#sb_top {
+	clear: right;
+}
+
+#sb_bottom {
+	clear: right;
+}
+
+#getting_started {
+	margin-left: 20px;
+}
+
+#getting_started_steps a {
+	text-decoration: none;
+}
+
+#getting_started_steps a:hover {
+  text-decoration: underline;
+}
+
+#getting_started_steps li {
+	margin-bottom: 0.5em;
+}
+
+/* Other and footer */
+
+#footer {
+	background: #fff;
+	padding: 10px;
+	color:#888888;
+	font-size:90%;
+}
+
+.flogo {
+	float: left;
+	margin-bottom: 0px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 0px;
+}
+
+.foottext p {
+	margin: 0; padding: 0;
+}
+
+.code {
+	font-family: "Lucida Console","Lucida Sans Typewriter",monospace;
+}
+
+span.code {
+background: #eee none repeat scroll 0% 0%;
+}
+
+#flash, .notice {
+	font-size: 120%;
+	font-weight: bolder;
+	margin: 0pt auto 0.5em;
+	width: 680px;
+}
+#flash div, .notice {
+	padding: 20px 15px 20px 65px;
+}
+#flash .ok {
+	background: #d8ecd8 url(../images/ok.png) no-repeat scroll 10px center;
+}
+#flash .warning {
+	background: #fff483 url(../images/warning.png) no-repeat scroll 10px center;
+}
+#flash .error {
+	background: #f9c5c1 url(../images/error.png) no-repeat scroll 10px center;
+}
+#flash .alert,
+#flash .info {
+	background: #eef url(../images/info.png) no-repeat scroll 10px center;
+}
+
+.notice {
+	background: #eef url(../images/info.png) no-repeat scroll 10px center;
+}
+
+.fielderror {
+	color: red;
+	font-weight: bold;
+}
+
+div.clearingdiv {
+	clear: both;
+}

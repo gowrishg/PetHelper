@@ -1,0 +1,301 @@
+# -*- coding: utf-8 -*-
+"""This module contains the controller classes of the application."""
+
+# symbols which are imported by "from pethelper.controllers import *"
+__all__ = ['Root']
+
+# standard library imports
+# import logging
+import datetime
+from turbogears import redirect
+
+# third-party imports
+from turbogears import controllers, expose, flash
+import httplib
+import random
+import clips
+import sys
+import jsonpickle
+
+# project specific imports
+# from pethelper import model
+# from pethelper import json
+
+# log = logging.getLogger("pethelper.controllers")
+
+class QuestionGroup:
+	def __init__(self):
+		self.qg_no = 0
+		self.desc = "Personal questions"
+		self.q_list = []
+		self.pet_list_score = []
+		self.breed_list_score = []
+
+class Question:
+	def __init__(self):
+		self.q = ""
+		self.q_no = 0
+		self.a = []
+		self.sel_a = 0
+
+class Pet:
+	def __init__(self):
+		self.pet_name = ""
+		self.score = 0
+
+class Breed(Pet):
+	def __init__(self):
+		self.breed_name = ""
+
+class ChartPlot:
+	def __init__(self):
+		self.label = ""
+		self.data = []
+
+class Root(controllers.RootController):
+	"""The root controller of the application."""
+
+	def __init__(self):
+		#global _qglist, _pets, _breeds
+		self.qg_list = []
+		self.pets = {}
+		self._breeds = {}
+		self.get_init_qg()
+
+
+	@expose(template="pethelper.templates.welcome")
+	def index(self, preview=0, qg_no=0):
+		print "^^^^^^^^^^^^^^" , preview, qg_no
+		""""Show the welcome page."""
+		preview = int(preview)
+		qg_no = int(qg_no)
+		qg = self.qg_list[-1]
+		cur_qg_no = len(self.qg_list)
+		if preview == 1:
+			qg = self.qg_list[qg_no-1]
+			cur_qg_no = qg_no
+
+		pet_list_sorted = []
+		if len(self.qg_list) > 1:
+			pet_list = self.qg_list[-2].pet_list_score
+			pet_list_sorted = sorted(pet_list, key=lambda pets: pets.score, reverse=True)
+
+		chartplot = self.reformat_chart(self.qg_list)
+		breeds = []
+		return dict(qg=qg, pet_list_sorted = pet_list_sorted ,pets = jsonpickle.encode(chartplot), breeds = breeds, cur_qg_no=cur_qg_no, preview=preview)
+
+	def reformat_chart(self, qg_list):
+		chartplot_bypet = {}
+		q_no = 0
+		for qg in qg_list:
+			q_no = q_no + 1
+			for pet_detail in qg.pet_list_score:
+					
+					pet_name = pet_detail.pet_name
+					pet = ChartPlot()
+					if pet_name in chartplot_bypet:
+						pet = chartplot_bypet[pet_name]
+					pet.label = pet_name
+					pet.data.append( [q_no, round(pet_detail.score,2)] )
+					chartplot_bypet[pet_name] = pet
+		chartplot_list = []
+		for chartplot_key, chartplot_value in chartplot_bypet.iteritems():
+			chartplot_list.append(chartplot_value)
+		return chartplot_list
+
+	@expose(format="json")
+	def answered(self, sel_qa=1):
+		print "$$$$$$$$$$$$$$$$$ " ,sel_qa
+		return dict() 
+
+	def dummy(self):
+		data = []
+		for i in range(0,10):
+			data.append(str([i , random.random()]))
+		return ", ".join(data)
+
+	def dummy2(self):
+		data = []
+		for i in range(0,10):
+			data.append(str([i , random.random()]))
+		return ", ".join(data)
+	@expose(template="pethelper.templates.plot")
+	def plot(self):
+		return dict(label="dummy data", data=self.dummy(), label2="gow", data2=self.dummy2())
+
+	PHASE_1_Q = 5
+	PHASE_2_Q = 5
+	@expose()
+	def next(self, cur_qg_no, action="preview", sel_a=1):
+		print "!!!!!!!!!!!!!!!!!!!" , action, sel_a , cur_qg_no
+		cur_qg_no = int(cur_qg_no) 
+		token = ""
+		if action == "next":
+			qg = self.qg_list[cur_qg_no-1]
+			for q in qg.q_list:
+				q.sel_a = sel_a
+			self.get_q(cur_qg_no)
+		elif action == "previous":
+			if cur_qg_no > 1:
+				self.qg_list.pop() 
+		elif action == "restart":
+			self.get_init_qg()
+		elif action == "preview":
+			token = "?preview=1&qg_no=" + str(cur_qg_no)
+		redirect("/" + token)
+
+	@expose(template="pethelper.templates.about")
+	def about(self):
+		""""Show the about page."""
+		# log.debug("Happy TurboGears Controller Responding For Duty")
+		return dict(now=datetime.datetime.now())
+
+
+	#method to retrieve question from clip engine
+	def get_q(self, cur_qg_no):
+		result = self.exe_CLIPS()
+		#from last question determine the points for every pet and breed
+		#then append _pets and _breed list
+
+		#input last_q and answer to rule engine it will give the weigtage for individual pet
+		test_pets = []
+
+		test_dog = Pet()
+		test_dog.pet_name = "dog"
+		test_dog.score = round(random.random(),2)
+		test_pets.append(test_dog)
+		test_rabbit = Pet()
+		test_rabbit.pet_name = "rabbit"
+		test_rabbit.score = round(random.random(),2) 
+		test_pets.append(test_rabbit)
+		test_fish = Pet()
+		test_fish.pet_name = "fish"
+		test_fish.score =  round(random.random(),2)
+		test_pets.append(test_fish)
+		test_bird= Pet()
+		test_bird.pet_name = "bird"
+		test_bird.score =  round(random.random(),2)
+		test_pets.append(test_bird)
+		"""
+		test_bird= Pet()
+		test_bird.pet_name = "bird2"
+		test_bird.score =  round(random.random(),2)
+		test_pets.append(test_bird)
+		test_bird= Pet()
+		test_bird.pet_name = "bird3"
+		test_bird.score =  round(random.random(),2)
+		test_pets.append(test_bird)
+		test_bird= Pet()
+		test_bird.pet_name = "bird4"
+		test_bird.score =  round(random.random(),2)
+		test_pets.append(test_bird)
+		test_bird= Pet()
+		test_bird.pet_name = "bird5"
+		test_bird.score =  round(random.random(),2)
+		test_pets.append(test_bird)
+		test_bird= Pet()
+		test_bird.pet_name = "bird7"
+		test_bird.score =  round(random.random(),2)
+		test_pets.append(test_bird)
+		test_bird= Pet()
+		test_bird.pet_name = "bird8"
+		test_bird.score =  round(random.random(),2)
+		test_pets.append(test_bird)
+		test_bird= Pet()
+		test_bird.pet_name = "bird9"
+		test_bird.score =  round(random.random(),2)
+		test_pets.append(test_bird)
+		test_bird= Pet()
+		test_bird.pet_name = "bird10"
+		test_bird.score =  round(random.random(),2)
+		test_pets.append(test_bird)
+		"""
+
+		self.qg_list[cur_qg_no-1].pet_list_score = test_pets
+
+		"""
+		for test_pet in test_pets:
+			if test_pet.pet_name in self._pets:
+				pet = self._pets[test_pet.pet_name]
+				#pet.score += test_pet.score
+				pet.score = test_pet.score
+			else:
+				self._pets[test_pet.pet_name] = test_pet
+		"""
+
+		new_qg = QuestionGroup()
+		new_qg.desc = new_qg.desc + str( random.randint(10,99))
+
+		new_q = Question()
+		new_q.q = "What is %d name - %s? " %(random.randint(10,99), result)
+		new_q.a = [ "One", "Two" , "Three", "Four" ]
+		new_q.q_no = len(new_qg.q_list)+1
+
+		new_qg.q_list.append(new_q)
+
+		new_q = Question()
+		new_q.q = "What is %d name - %s - 2? " %(random.randint(10,99), result)
+		new_q.a = [ "One", "Two" , "Three", "Four" ]
+		new_q.q_no = len(new_qg.q_list)+1
+		new_qg.q_list.append(new_q)
+
+
+		new_q = Question()
+		new_q.q = "What is %d name - %s - 3? " %(random.randint(10,99), result)
+		new_q.a = [ "One", "Two" , "Three", "Four" ]
+		new_q.q_no = len(new_qg.q_list)+1
+		new_qg.q_list.append(new_q)
+
+		new_qg.qg_no = len(self.qg_list) + 1
+		self.qg_list.append(new_qg)
+		return new_q
+
+
+	def init_CLIPS(self):
+		"""init CLIPS rules and facts"""
+		CLIPS_FILENAME = "/Users/gowrishg/Development/PetHelper/pethelper/static/pethelper.clp"
+		clips.Clear()
+		clips.BatchStar(CLIPS_FILENAME)
+		clips.Reset()
+
+	def get_init_qg(self):
+		self.init_CLIPS()
+		del self.qg_list[:]
+		self.pets.clear()
+		self._breeds.clear()
+
+		new_qg = QuestionGroup()
+		new_qg.desc = new_qg.desc + str( random.randint(10,99))
+
+		new_q = Question()
+		new_q.q = "Whats your preference?"
+		new_q.a = ["Cat", "Dog", "Bird", "Fish"]
+		new_q.q_no = len(new_qg.q_list) + 1
+		new_qg.q_list.append(new_q)
+
+		new_q = Question()
+		new_q.q = "Whats your preference - 2?"
+		new_q.a = ["Cat", "Dog", "Bird", "Fish"]
+		new_q.q_no = len(new_qg.q_list) + 1
+		new_qg.q_list.append(new_q)
+
+		new_q = Question()
+		new_q.q = "Whats your preference - 3?"
+		new_q.a = ["Cat", "Dog", "Bird", "Fish"]
+		new_q.q_no = len(new_qg.q_list) + 1
+		new_qg.q_list.append(new_q)
+
+		new_qg.qg_no = len(self.qg_list) + 1
+		self.qg_list.append(new_qg)
+
+	def exe_CLIPS(self):
+		assert_stmt = "(weather raining %d)" %(random.randint(0,10000)) 
+		clips.Assert(assert_stmt)
+		clips.Run()
+		li = clips.FactList()
+		result = ""
+		for f in li:
+			result = result , "," ,f.PPForm()
+		return result
+
+

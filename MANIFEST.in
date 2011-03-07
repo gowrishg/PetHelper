@@ -1,0 +1,6 @@
+include start-pethelper.py
+include *.cfg
+include pethelper/config/*.cfg
+recursive-include pethelper/templates *.html
+recursive-include pethelper/templates *.kid
+recursive-include pethelper/static *

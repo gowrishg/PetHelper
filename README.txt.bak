@@ -1,0 +1,16 @@
+PetHelper
+
+This is a TurboGears (http://www.turbogears.org) project. It can be
+started by running the start-pethelper.py script.
+
+Language Python 
+Rule engine - pyclips 
+------------------------
+
+Mac OS X user - 
+	install turbogears
+	install pyclips
+	install jsonpickle
+	install flot
+
+

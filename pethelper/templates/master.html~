@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      py:strip="">
+
+<head py:match="head" py:attrs="select('@*')">
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+    <title py:replace="''">PetHelper</title>
+    <link py:for="css in tg_css" py:replace="css.display()" />
+    <link py:for="js in tg_js_head" py:replace="js.display()" />
+    <meta py:replace="select('*')" />
+    <link rel="stylesheet" type="text/css" media="screen" href="${tg.url('/static/css/style.css')}" />
+	<script language="javascript" type="text/javascript" src="static/javascript/flot/excanvas.js"></script>
+	<script language="javascript" type="text/javascript" src="static/javascript/flot/jquery.js"></script>
+	<script language="javascript" type="text/javascript" src="static/javascript/flot/jquery.flot.js"></script>
+</head>
+
+<?python
+  # define mock menus as list of (title, url, is_active) tuples
+  menu_top = [
+    ('Welcome','/', True),
+  ]
+?>
+
+<body py:match="body" py:attrs="select('@*')">
+
+  <div py:for="js in tg_js_bodytop" py:replace="js.display()" />
+
+  <div id="header">
+    <h1>
+		PetHelper
+		<span class="subtitle">Know your pet</span>
+    </h1>
+  </div>
+
+  <ul id="mainmenu">
+    <li py:for="num, (title, url, is_active) in enumerate(menu_top)" class="${('', 'first')[not num]}">
+      <a href="${url}" class="${('', 'active')[is_active]}" py:content="title"></a>
+    </li>
+  </ul>
+  <div id="content">
+
+	<!--
+    <div id="flash" class="notice" py:if="value_of('tg_flash', None)" py:content="tg_flash"></div>
+    <div id="sb_top" class="sidebar">
+        <h2>Learn More</h2>
+        <p>Want to learn more about TurboGears and
+                    take part in its development?</p>
+        <ul class="links">
+          <li py:for="title, url in menu_side"><a py:attrs="dict(href=url)" py:content="title"></a></li>
+        </ul>
+    </div>
+	-->
+
+    <div py:replace="select('*|text()')"/>
+
+    <div id="footer">
+      <div class="foottext">
+		  KBS Project - Gowrish Giridharan, Kanagavelan Subramanian, Karthik Parameswaran, Koushik Sankaran
+      </div>
+    </div>
+  </div>
+
+  <div py:for="js in tg_js_bodybottom" py:replace="js.display()" />
+
+</body>
+
+</html>

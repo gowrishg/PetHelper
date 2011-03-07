@@ -1,0 +1,4 @@
+[console_scripts]
+bootstrap-pethelper = pethelper.command:bootstrap
+start-pethelper = pethelper.command:start
+

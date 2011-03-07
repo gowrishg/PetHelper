@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html" />
+<?python
+from turbogears.i18n.format import format_date
+def dateandtime(d):
+    return format_date(d, format="full", time_format=" @ %X %Z")
+
+# define mock menus as list of (title, url, is_active) tuples
+menu_top = [
+('Welcome','/', False),
+('About','/about', True)
+]
+?>
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+    <title>PetHelper - Know your pet</title>
+</head>
+<body>
+
+    <!--! template functions -->
+    <span py:def="code(codestring)" py:content="codestring" class="code" />
+
+    <div id="flash" class="notice" py:if="value_of('tg_flash', None)" py:content="tg_flash"></div>
+    <div class="content-section">
+		<!--! Normal content: Stuff that's not in the left or right column. !-->
+		<div style="min-height:200px">
+			About Us:
+				<br/>
+				The project was developed by Koushik, Karthik, Kangavel, Gowrish. 
+				<br/>
+				Pet helper will help user to choose the right pet from the prefrences he has given
+		</div>
+	</div>
+</body>
+</html>

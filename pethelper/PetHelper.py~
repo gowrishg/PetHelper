@@ -1,0 +1,272 @@
+from os.path import normpath, join
+from turbogears import config
+import random
+import clips
+import sqlite3
+class QuestionGroup:
+	def __init__(self):
+		self.qg_no = 0
+		self.desc = "Personal questions"
+		self.q_list = []
+		self.pet_list_score = []
+		self.breed_list_score = []
+
+class Question:
+	def __init__(self):
+		self.q = {}
+		self.img = ""
+		self.q_no = 0
+		self.a = {}
+		self.sel_multi_a = []
+
+class Pet:
+	def __init__(self):
+		self.pet_name = ""
+		self.score = 0
+
+class Breed(Pet):
+	def __init__(self):
+		self.breed_name = ""
+
+class ChartPlot:
+	def __init__(self):
+		self.label = ""
+		self.data = []
+
+class PetHelper():
+	def __init__(self, qg_list):
+		print "SELF ________________________________"
+		#global _qglist, _pets, _breeds
+		self.init_questions()
+		self.qg_list = qg_list
+		if len(self.qg_list) == 0:
+			self.get_init_qg()
+
+
+	def reformat_chart(self):
+		chartplot_bypet = {}
+		q_no = 0
+		for qg in self.qg_list:
+			q_no = q_no + 1
+			for pet_detail in qg.pet_list_score:
+					pet_name = pet_detail.pet_name
+					print pet_name , "%%%%%%%%%%%%%%%%%%"
+					pet = ChartPlot()
+					if pet_name in chartplot_bypet:
+						pet = chartplot_bypet[pet_name]
+					pet.label = pet_name
+					pet_score = pet_detail.score 
+					pet.data.append( [q_no, pet_score] )
+					chartplot_bypet[pet_name] = pet
+		chartplot_list = []
+		for chartplot_key, chartplot_value in chartplot_bypet.iteritems():
+			chartplot_list.append(chartplot_value)
+		return chartplot_list
+
+	#method to retrieve question from clip engine
+	def get_q(self, cur_qg_no):
+		pet_list_score = self.exe_CLIPS()
+		#from last question determine the points for every pet and breed
+		#then append _pets and _breed list
+
+		#input last_q and answer to rule engine it will give the weigtage for individual pet
+		self.qg_list[cur_qg_no-1].pet_list_score = pet_list_score
+
+		qg = self.full_qg_list[cur_qg_no]
+		self.qg_list.append(qg)
+
+
+	def init_CLIPS(self):
+		"""init CLIPS rules and facts"""
+		static_dir = config.get('static_filter.dir', path="/static")
+		CLIPS_FILENAME = join(normpath(static_dir), "pethelper.clp")
+		clips.Clear()
+		clips.BatchStar(CLIPS_FILENAME)
+		clips.Reset()
+
+	def get_init_qg(self):
+		self.init_CLIPS()
+		del self.qg_list[:]
+		qg = self.full_qg_list[0]
+		self.qg_list.append(qg)
+
+	def exe_CLIPS(self):
+		qg = self.qg_list[-1]
+		assert_stmt = ""
+		for q in qg.q_list:
+			assert_stmt = "("
+			for q_key, q_value in q.q.iteritems():
+				assert_stmt =  assert_stmt + q_key
+			for answer in q.sel_multi_a :
+				assert_stmt = assert_stmt + " " + answer
+			assert_stmt = assert_stmt + ")"
+			print "-----------" , assert_stmt
+			clips.Assert(assert_stmt)
+		clips.Run()
+		pet_list_score = []
+		results = clips.Eval("(find-all-facts ((?f Pet-Owner)) TRUE)")
+		print "!!!!!!!!!!!!!!!!! ", len(results)
+		for result in results:
+			pet = Pet()
+			pet.pet_name = str(result.Slots["PetName"])
+			pet.score = result.Slots["cf"]
+			pet.score = round(pet.score,2) * 100
+			pet_list_score.append(pet)
+
+		return pet_list_score
+
+	def init_questions(self):
+		self.full_qg_list = []
+
+		#group1 questions
+		qg = QuestionGroup()
+		qg.desc = "Lets begin"
+		q = Question()
+		q.q = {"preference" : "Do you have any preference?"}
+		q.a = [
+				{"Rabbit" : "Rabbit"},
+				{"Dog" : "Dog"},
+				{"Bird" : "Bird"},
+				{"Fish" : "Fish"},
+				{"No" :"Nothing"}  
+				]
+		q.img = ["rabbit_img", "dog_img", "bird_img", "fish_img"]
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+		qg.qg_no = len(self.full_qg_list) + 1
+
+		self.full_qg_list.append(qg)
+
+		#group2 questions
+		qg = QuestionGroup()
+		qg.desc = "About yourself"
+		q = Question()
+		q.q = { "time" : "Do you have enough time to spend with your pet?" }
+		q.a = [ {"High" : "Yes. I have plenty of time"} ,
+				{ "Medium" : "I can manage my time for the pet"}, 
+				{ "Low" : "Sorry, I am a busy person"}
+				] 
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+
+		q = Question()
+		q.q = { "patience" : "Which of the below option best describe you?"} 
+		q.a = [ 
+				{"Yes": "I love playing with pet"}, 
+				{"No" : "I don't have patience to run behind pet"}
+				] 
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+
+		q = Question()
+		q.q = { "children" : "Do you have any kids at home?" }
+		q.a = [
+				{ "Yes" : "Yes"} , 
+				{ "No" : "No" }
+				] 
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+
+		q = Question()
+		q.q = { "cost" : "How much can you afford for your pet?" }
+		q.a = [
+				{ "Concerned" : "My financier is too concerned about money" },
+				{ "Reasonable" : "I am partly concerned about spending money"},
+				{ "NotConcerned" : "I really don't care spending for my pet" }
+				] 
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+		qg.qg_no = len(self.full_qg_list) + 1
+
+		self.full_qg_list.append(qg)
+
+		#qroup3 questions
+		qg = QuestionGroup()
+		qg.desc = "About your pet?"
+		q = Question()
+		q.q = {"size" : "Do you mind having a bigger pet?"}
+		q.a = [
+				{ "Small" : "No. I prefer smaller pet" },
+				{ "Medium" : "I don't want very big sized pet"},
+				{ "Large" : "I don't really  care about my pet size"}
+				] 
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+
+		q = Question()
+		q.q = { "nature" : "What nature of pet you would best prefer?" }
+		q.a = [
+				{ "Energetic" : "I want my pet to be energetic" },
+				{ "Quiet" : "I don't like noisy pet"},
+				{ "NotConcerned" : "I don't care about my pet's nature"}
+				] 
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+
+		q = Question()
+		q.q = { "veg" : "Do you want your pet to be a vegetarian?" }
+		q.a = [ 
+				{ "Yes" : "Yes" }, 
+				{ "NotConcerned"  : "Never mind" }
+				] 
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+		qg.qg_no = len(self.full_qg_list) + 1
+
+		self.full_qg_list.append(qg)
+
+		#qroup4 questions
+		qg = QuestionGroup()
+		qg.desc = "About your home environment"
+
+		q = Question()
+		q.q = { "home": "Tell me about your home?" }
+		q.a = [
+				{ "HDB" : "I live in apartment (HDB, Private apartment)" },
+				{ "Individual" : "I live in an individual home" } ,
+				{ "Bungalow" : "I live in bangalow" }
+				] 
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+
+		q = Question()
+		q.q = { "landscaping" : "Do you have any landscaping concerns?" }
+		q.a = [
+				{ "NT" : "I prefer neat and tidy environment" },
+				{ "OA" : "I don't mind occasional accidents because of pets"}, 
+				{ "NotConcerned" : "I don't really have any concerns"}
+				]
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+
+		q = Question()
+		q.q = { "otherpets" : "Do you already have any other pets at home?" }
+		q.a = [
+				{ "YesAquarium" : "Yes. I have a small aquarium" }, 
+				{ "YesBirds" : "Yes. I have few birds" },
+				{ "YesBig" : "Yes. I already have a big pet" }, 
+				{ "No" : "No. I don't have any other pets"}
+				]
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+		qg.qg_no = len(self.full_qg_list) + 1
+
+		self.full_qg_list.append(qg)
+
+		#qroup4 questions
+		qg = QuestionGroup()
+		qg.desc = "BREED RELATED QUESTIONS"
+		q = Question()
+		q.q = { "dummy" : "NO QUESTIONS?" }
+		q.a = [
+				{ "1breed" : "Yes" }, 
+				{ "2breed" : "Yes" },
+				{ "3breed" : "Yes" }, 
+				{ "4breed" : "No" }
+				]
+		q.q_no = len(qg.q_list) + 1
+		qg.q_list.append(q)
+		qg.qg_no = len(self.full_qg_list) + 1
+
+		self.full_qg_list.append(qg)
+

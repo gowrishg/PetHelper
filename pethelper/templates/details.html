@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html" />
+<?python
+from turbogears.i18n.format import format_date
+def dateandtime(d):
+    return format_date(d, format="full", time_format=" @ %X %Z")
+menu_top = [
+('Welcome','/', True),
+]
+?>
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+    <title>PetHelper - Know your pet</title>
+</head>
+<body>
+
+    <!--! template functions -->
+    <span py:def="code(codestring)" py:content="codestring" class="code" />
+
+    <div class="content-section">
+			<div py:if="len(chartplot)>2"  id="sb_top" class="sidebar">
+				<h2>Likeliness</h2>
+				<p>Pet prediction: <b> (click graph points for details) </b> </p>
+				<span id="pet_legend"></span>
+				<div id="pet_placeholder" class="graphprop"></div>
+				
+				<p>Chance of selecting:</p>
+					<ul>
+					<li	py:for="pet_details in pet_list_sorted"> 
+						${pet_details.pet_name} - ( ${pet_details.score} % )
+						<ul>
+							<li	py:for="breed_details in pet_details.breed_list"> 
+								<a href="/details?pets=${breed_details.breed_key}">
+									${breed_details.breed_name} </a>
+									- ( ${breed_details.score} % )
+							</li>
+						</ul>
+					</li>
+					</ul>
+			</div>
+			<form method="post" action="next" name="qa_preview">
+				<input type="hidden" name="qg_no" id="qg_no" value="1" />
+				<input type="hidden" name="over" id="over" value="${over}" />
+			</form>
+			<div class="description" >
+					<a href="${details.petlink}">
+						<img src="../static/images/${details.petimage}" style = "float:left" width="160" height="160" /> 
+					</a>
+					<div style="margin-left: 190px">
+						<p align="right"> <font size = "3"><b>${details.petbreed} </b> </font> </p>	
+						<p align="right"> <b>Pet type: ${details.pettype} </b> </p>							<hr width="100%" color="#6699FF" size="0.5"></hr>
+						<p align="right"><b>About ${details.petbreed}</b></p>						<hr width="100%" color="#6699FF" size="0.5"></hr>								
+						<p>${XML(details.aboutpet.getvalue())}</p>
+						<p><b>Key features of ${details.petbreed}</b> </p>
+						<ul>
+						<li	py:for="features in details.petfeatures"> 
+								${features}
+						</li>
+						</ul>
+						<hr width="100%" color="#6699FF" size="0.5"></hr>
+						<p align = "right"><b>Care for your pet</b></p>
+						<hr width="100%" color="#6699FF" size="0.5"></hr>
+						<b>Housing:</b> <br/>					
+						<blockquote> 
+						${XML(details.pethouse.getvalue())}</blockquote>
+						<br />
+						<b>Training:</b> <br/>						<blockquote>	
+
+							${XML(details.pettrain.getvalue())}
+						</blockquote>							<b>Food:</b> <br/> 						<blockquote>								${XML(details.petfood.getvalue())}				
+						</blockquote>							<b>Grooming:</b> <br/>
+						<blockquote>								${XML(details.petgroom.getvalue())}				
+						</blockquote>							<hr width="100%" color="#6699FF" size="0.5"></hr>
+						<p align="right"> <b>Procurement and Licencing details</b></p>						<hr width="100%" color="#6699FF" size="0.5"></hr>						<b>Where to buy yout pet</b> <br/>						<blockquote>							${XML(details.petbuy.getvalue())}				
+						</blockquote>						<b>Pet procurement procedures</b> <br/> 					    <blockquote>							${XML(details.petproc.getvalue())}				
+						</blockquote>	
+						<hr width="100%" color="#6699FF" size="0.5"></hr>
+						<p align = "right"><b>Other information</b></p>
+						<hr width="100%" color="#6699FF" size="0.5"></hr>
+					    <blockquote>							${XML(details.petothers.getvalue())}				
+						</blockquote>	
+					</div>					
+			</div>
+	</div>
+	<script id="source" language="javascript" type="text/javascript">
+		$(function () {
+			// setup plot
+			function getData() {
+				return ${chartplot};
+			}
+
+			var options = {
+				legend: { show: true, noColumns:4, backgroundOpacity: 0, container: document.getElementById("pet_legend") },
+				lines: { show: true , clickable:true, hoverable: true},
+				points: { show: true },
+				yaxis: { noTicks: 2, min:0, max:100 , tickFormatter: function (val, axis) { return val+ "%" }  },
+				xaxis: { noTicks:${PHASE_1_Q}, min:1, max:${PHASE_1_Q} , tickFormatter: function (val, axis) { return "Group-"+val }  },
+				selection: { mode: "xy" },
+				grid: {clickable: true, hoverable: true},
+				series: {lines: {show:true}, points: {show:true}},
+			};
+
+
+			var plotData = getData();
+
+			var plot = $.plot($("#pet_placeholder"), plotData, options);
+
+			// now connect the two
+			var internalSelection = false;
+
+			function showTooltip(x, y, contents) {
+				$('<div id="tooltip">' + 'Group-' + contents[0] + '</div>').css( {
+					position: 'absolute',
+					display: 'none',
+					top: y + 5,
+					left: x + 5,
+					border: '1px solid #fdd',
+					padding: '2px',
+					'background-color': '#fee',
+					opacity: 0.80
+				}).appendTo("body").fadeIn(200);
+			}
+
+			$("#pet_placeholder").bind("plotclick", function (event, pos, item) {
+				if (item) {
+					x = item.datapoint[0];
+					y = item.datapoint[1];
+					document.getElementById('qg_no').value = x;
+					document.qa_preview.submit();
+					plot.highlight(item.series, item.datapoint);
+				}
+			});
+
+			$("#pet_placeholder").bind("plothover", function (event, pos, item) {
+				$("#x").text(pos.x.toFixed(2));
+				$("#y").text(pos.y.toFixed(2));
+
+					if (item) {
+						if (item.previousPoint != item.datapoint) {
+							previousPoint = item.datapoint;
+							
+							x = item.datapoint[0];
+							y = item.datapoint[1];
+
+							$("#tooltip").remove();
+							
+							showTooltip(item.pageX, item.pageY,
+										item.datapoint);
+						}
+						} else {
+							$("#tooltip").remove();
+						}
+			});
+		});
+	</script>
+</body>
+</html>

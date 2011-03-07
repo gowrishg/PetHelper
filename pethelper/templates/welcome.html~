@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<xi:include href="master.html" />
+<?python
+from turbogears.i18n.format import format_date
+def dateandtime(d):
+    return format_date(d, format="full", time_format=" @ %X %Z")
+
+# define mock menus as list of (title, url, is_active) tuples
+menu_top = [
+('Welcome','/', True),
+]
+?>
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+    <title>PetHelper - Know your pet</title>
+</head>
+<body>
+
+    <!--! template functions -->
+    <span py:def="code(codestring)" py:content="codestring" class="code" />
+
+    <div id="flash" class="notice" py:if="value_of('tg_flash', None)" py:content="tg_flash"></div>
+    <div class="content-section">
+		<!--! Normal content: Stuff that's not in the left or right column. !-->
+		<div class="sidebar_start">
+			<div class="dog_img" />
+			<div class="rabbit_img" />
+			<div class="fish_img" />
+			<div class="bird_img" />
+			<form name="pethelper" action="pethelper" >
+				<input type="submit" value="Know your pet" />
+			</form>
+		</div>
+		<div class="q_ans">
+			<div class="question"> 
+				About PetHelper
+			</div>
+			<div class="answer">
+				PetHelper will help users to choose the right pet from the preferences given. 
+				<br/>
+				PetHelper is a knowledge based system developed to help pet lovers. It suggests the best pet companion for the user. The system also provides other information like procurement procedures, licensing and pet care.
+				<br />
+				The system is developed with intelligence to suggest correct pet (currently four pets - dog, rabbit, fish and bird) and specific breeds, which best matches the user profile.
+				<br />
+				<br />
+				<div class="answer">
+					Project by : 
+					<div class="answer">
+						Gowrish Giridharan - A0065834Y
+						<br /> Karthik Parameswaran - A0065766R
+						<br /> Kanagavelan Subramanian - A0065966M
+						<br /> Koushik Sankaran - A0065927U
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

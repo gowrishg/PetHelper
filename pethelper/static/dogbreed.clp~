@@ -1,0 +1,471 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;DEFTEMPLATE;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;; Final Output Template for Dog Breeds
+(deftemplate DogBreed
+	(slot BreedName)
+	(slot cf)
+)
+
+(deftemplate WorkingDogBreed
+	(slot BreedName)
+	(slot cf)
+)
+(deftemplate DogPurposes
+	(multislot purposes)
+)
+
+(deftemplate DogAllowedBreeds
+	(multislot Name)
+)
+(deftemplate Next-Question-Dog
+	(slot QuestionKey)
+)
+
+(deffunction DogAssignCFForBreed
+	(?breeds ?cf)
+	(foreach ?val ?breeds
+		(assert (WorkingDogBreed (BreedName ?val)(cf ?cf)))
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;DEFINING RULES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;----------------------------------------------------------------------------------
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;combine certainty factors for multiple conclusions
+;cf(cf1,cf2) = cf1 + cf2 * (1- cf1)
+;; Here,,, cf(cf1,cf2) = (cf1 + cf2)/2
+
+(defrule combine-positive-cf-Dog
+ 	?f1 <- (DogBreed (BreedName ?pet1)(cf ?cf1))
+	?f2 <- (WorkingDogBreed (BreedName ?pet2)(cf ?cf2))
+	(test (eq ?pet1 ?pet2))
+	=>
+	(retract ?f2)
+	(modify ?f1 (cf =(/ (+ ?cf2 ?cf1) 2)))
+	;(modify ?f1 (cf =(+ ?cf2 ?cf1)))
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Time;;;;;;;;;;;;;;;
+(defrule DogBreedTimeCF
+	(DogAllowedBreeds (Name $?d))
+	(time ?t)
+	=>
+	(if (or 
+		(eq ?t Medium)(eq ?t Low)
+	    )
+		then 
+			(bind ?selectedBreeds (create$ Affenpinscher AustralianTerrier BostonTerrier MiniatureSchnauzer LabradorRetriever Pomeranian))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.2)
+				)
+			)
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+	)
+	(if  (eq ?t High)
+	    	then
+			(DogAssignCFForBreed ?d 1.0)
+	)
+)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Home;;;;;;;;;;;;;;;
+(defrule DogBreedHomeCF
+	(DogAllowedBreeds (Name $?d))
+	(home ?h)
+	=>
+	(if (eq ?h HDB)
+	    then 
+		(bind ?selectedBreeds (create$ GoldenRetriever LabradorRetriever))
+		(foreach ?value ?d
+			(if (not (member$ ?value ?selectedBreeds))
+				then (DogAssignCFForBreed (create$ ?value) 1.0)
+			)
+		)
+		(DogAssignCFForBreed ?selectedBreeds 0.0)
+	)
+	(if (or   
+		(eq ?h Individual)(eq ?h Bungalow)
+	    )
+	    	then
+			(bind ?selectedBreeds (create$ GoldenRetriever LabradorRetriever))
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.0)
+				)
+			)
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Children;;;;;;;;;;;;;;;
+(defrule DogBreedChildrenCF
+	(DogAllowedBreeds (Name $?d))
+	(children ?c)
+	=>
+	(if (eq ?c Yes)
+	    	then 
+			(bind ?selectedBreedsOne (create$ BichonFrise BorderTerrier ShihTzu GoldenRetriever Poodle LabradorRetriever MiniatureSchnauzer))
+			(bind ?selectedBreedsTwo (create$ AustralianTerrier BostonTerrier TheJackRussellTerrier Maltese Pomeranian))
+			(DogAssignCFForBreed ?selectedBreedsOne 1.0)
+			(DogAssignCFForBreed ?selectedBreedsTwo 0.7)
+			(DogAssignCFForBreed (create$ Chihuahua) 0.2)
+	)
+	(if  (eq ?c No)
+	    	then
+			(DogAssignCFForBreed (create$ Chihuahua) 1.0)
+			(DogAssignCFForBreed (create$ Affenpinscher) 1.0)
+			(foreach ?value ?d
+				(if (not (eq ?value Chihuahua))
+					then (DogAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+			
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Owner's Patience Style;;;;;;;;;;;;;;;
+(defrule DogBreedPatienceCF
+	(DogAllowedBreeds (Name $?d))
+	(patience ?p)
+	=>
+	(if (eq ?p No)
+	    	then 
+			(bind ?selectedBreedsOne (create$ Affenpinscher Chihuahua Maltese Poodle Pomeranian ))
+			(bind ?selectedBreedsTwo (create$ AustralianTerrier BichonFrise BorderTerrier ShihTzu TheJackRussellTerrier MiniatureSchnauzer GoldenRetriever LabradorRetriever))
+			(DogAssignCFForBreed ?selectedBreedsOne 0.9)
+			(DogAssignCFForBreed ?selectedBreedsTwo 0.7)
+			(DogAssignCFForBreed (create$ BostonTerrier) 0.2)
+	)
+	(if  (eq ?p Yes)
+	    	then
+			(bind ?selectedBreedsOne (create$ Affenpinscher Chihuahua Maltese Poodle Pomeranian))
+			(bind ?selectedBreedsTwo (create$ AustralianTerrier BichonFrise BorderTerrier ShihTzu TheJackRussellTerrier MiniatureSchnauzer GoldenRetriever LabradorRetriever))
+			(DogAssignCFForBreed ?selectedBreedsOne 0.5)
+			(DogAssignCFForBreed ?selectedBreedsTwo 0.7)
+			(DogAssignCFForBreed (create$ BostonTerrier) 1.0)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Nature of Pet;;;;;;;;;;;;;;;
+(defrule DogBreedNatureCF
+	(DogAllowedBreeds (Name $?d))
+	(nature ?n)
+	=>
+	(if (eq ?n Energetic)
+	    	then 
+			(bind ?selectedBreeds (create$ AustralianTerrier BichonFrise BorderTerrier TheJackRussellTerrier))
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.6)
+				)
+			)
+	)
+	(if  (eq ?n Quiet)
+	    	then
+	    		(bind ?selectedBreeds (create$ BostonTerrier Chihuahua))
+	    		(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.4)
+				)
+			)
+	)
+	(if  (eq ?n NotConcerned)
+		then
+			(DogAssignCFForBreed ?d 1.0)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Hair Length of Dog;;;;;;;;;;;;;;;
+(defrule DogBreedHairLengthCF
+	(DogAllowedBreeds (Name $?d))
+	(doghairlength ?length)
+	=>
+	(if (eq ?length Short)
+	    	then 
+			(bind ?selectedBreeds (create$ BichonFrise BorderTerrier BostonTerrier TheJackRussellTerrier Chihuahua Poodle LabradorRetriever Pomeranian))
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.0)
+				)
+			)
+	)
+	(if (eq ?length Medium)
+		then 
+			(bind ?selectedBreeds (create$ Affenpinscher AustralianTerrier MiniatureSchnauzer GoldenRetriever))
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.0)
+				)
+			)
+	)
+	(if (eq ?length Long)
+		then 
+			(bind ?selectedBreeds (create$ ShihTzu Maltese))
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.0)
+				)
+			)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Exercise Time Given to Dog;;;;;;;;;;;;;;;
+(defrule DogBreedExerciseTimeCF
+	(DogAllowedBreeds (Name $?d))
+	(dogexercisetime ?exercise)
+	=>
+	(if (eq ?exercise Low)
+	    	then 
+			(bind ?selectedBreeds (create$ Affenpinscher ShihTzu Maltese Chihuahua Pomeranian))
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.2)
+				)
+			)
+	)
+	(if (eq ?exercise Medium)
+		then 
+			(bind ?selectedBreeds (create$ AustralianTerrier BichonFrise BorderTerrier BostonTerrier TheJackRussellTerrier MiniatureSchnauzer GoldenRetriever Poodle))
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.4)
+				)
+			)
+	)
+	(if (eq ?exercise High)
+		then 
+			(DogAssignCFForBreed ?d 1.0)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Training Time Given to Dog;;;;;;;;;;;;;;;
+(defrule DogBreedTrainingTimeCF
+	(DogAllowedBreeds (Name $?d))
+	(dogtrainingtime ?training)
+	=>
+	(if (eq ?training Yes)
+	    	then 
+			(DogAssignCFForBreed ?d 1.0)
+	)
+	(if (eq ?training NotSure)
+		then 
+			(bind ?selectedBreeds (create$ BorderTerrier MiniatureSchnauzer GoldenRetriever Poodle LabradorRetriever))
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.8)
+				)
+			)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Grooming Time Given to Dog;;;;;;;;;;;;;;;
+(defrule DogBreedGroomingTimeCF
+	(DogAllowedBreeds (Name $?d))
+	(doggroomingtime ?grooming)
+	=>
+	(if (eq ?grooming Low)
+	    	then 
+	    		(bind ?selectedBreeds (create$ AustralianTerrier Affenpinscher BorderTerrier BostonTerrier TheJackRussellTerrier Chihuahua LabradorRetriever))
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.5)
+				)
+			)
+	)
+	(if (eq ?grooming Medium)
+		then 
+			(bind ?selectedBreeds (create$ AustralianTerrier Affenpinscher BorderTerrier BostonTerrier TheJackRussellTerrier Chihuahua LabradorRetriever MiniatureSchnauzer GoldenRetriever Pomeranian)) ;; Combined with Less time
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds) )
+					then (DogAssignCFForBreed (create$ ?value) 0.6)
+				)
+				
+			)
+	)
+	(if (eq ?grooming High)
+	    	then 
+			(DogAssignCFForBreed ?d 1.0)
+	)
+)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Barking Nature;;;;;;;;;;;;;;;
+(defrule DogBreedBarkingNatureCF
+	(DogAllowedBreeds (Name $?d))
+	(dogbark ?bark)
+	=>
+	(if (eq ?bark Care)
+	    	then 
+	    		(bind ?selectedBreeds (create$ AustralianTerrier BichonFrise BorderTerrier MiniatureSchnauzer GoldenRetriever LabradorRetriever))
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.3)
+				)
+			)
+	)
+	(if (eq ?bark NoCare)
+		then 
+			(DogAssignCFForBreed ?d 1.0)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Shedding dogsheddingobjection;;;;;;;;;;;;;;;
+(defrule DogBreedSheddingObjectionCF
+	(DogAllowedBreeds (Name $?d))
+	(dogsheddingobjection ?obj)
+	=>
+	(if (eq ?obj Yes)
+	    	then 
+	    		(bind ?selectedBreeds (create$ Affenpinscher AustralianTerrier BichonFrise BorderTerrier Maltese MiniatureSchnauzer Poodle))
+			(DogAssignCFForBreed ?selectedBreeds 1.0)
+			(foreach ?value ?d
+				(if (not (member$ ?value ?selectedBreeds))
+					then (DogAssignCFForBreed (create$ ?value) 0.4)
+				)
+			)
+	)
+	(if (eq ?obj No)
+		then 
+			(DogAssignCFForBreed ?d 1.0)
+	)
+)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Purposes;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defrule DogBreedPurposesCF
+	(DogAllowedBreeds (Name $?d))
+	(dogpurposes $?obj)
+	(test (neq ?obj No))
+	=>
+	(foreach ?value ?obj
+		(if (eq ?value Hunting) 
+			then 	(bind ?selectedBreeds (create$ AustralianTerrier BorderTerrier TheJackRussellTerrier))
+				(DogAssignCFForBreed ?selectedBreeds 0.5)
+		)
+		(if (eq ?value WatchDog) 
+			then 	(bind ?selectedBreeds (create$ Affenpinscher ShihTzu GoldenRetriever Poodle))
+				(DogAssignCFForBreed ?selectedBreeds 0.5)
+		)
+		(if (eq ?value RodentCatcher) 
+			then 	(bind ?selectedBreeds (create$ Affenpinscher MiniatureSchnauzer))
+				(DogAssignCFForBreed ?selectedBreeds 0.5)
+		)
+		(if (eq ?value Companionship) 
+			then 	(bind ?selectedBreeds (create$ Affenpinscher Chihuahua LabradorRetriever Pomeranian))
+				(DogAssignCFForBreed ?selectedBreeds 0.5)
+		)
+		(if (eq ?value Sports) 
+			then 	(bind ?selectedBreeds (create$ LabradorRetriever GoldenRetriever))
+				(DogAssignCFForBreed ?selectedBreeds 0.5)
+		)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Defrule for Dog 	Breed CF based on Purposes;;;;;;;;;;;;;;;;;;;;;;;;;
+(defrule DogBreedNoPurpose
+	(DogAllowedBreeds (Name $?d))
+	(dogpurposes $?obj)
+	(test (eq ?obj No))
+	=>
+		(DogAssignCFForBreed ?d 1.0)
+)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;RULE TO RETRACT 3 QUESTION AND INSERT 3 QUESTIONS;;;;;;
+(defrule DogInsertQuestionRule1
+	(dogexercisetime ?exe)
+	(dogtrainingtime ?tra)
+	(doggroomingtime ?gro)
+	?a <- (Next-Question-Dog (QuestionKey dogexercisetime))
+	?b <- (Next-Question-Dog (QuestionKey dogtrainingtime))
+	?c <- (Next-Question-Dog (QuestionKey doggroomingtime))
+	=>
+	(retract ?a ?b ?c)
+	(assert (Next-Question-Dog (QuestionKey doghairlength)))
+	(assert (Next-Question-Dog (QuestionKey dogbark)))
+	(assert (Next-Question-Dog (QuestionKey dogsheddingobjection)))
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;RULE TO RETARCT ALL QUESTIONS ;;;;;;;;;;;;;;;;;;;;;;;;;
+(defrule DogRetractAllQuestions
+	(doghairlength ?exe)
+	(dogbark ?tra)
+	(dogsheddingobjection ?gro)
+	?a <- (Next-Question-Dog (QuestionKey doghairlength))
+	?b <- (Next-Question-Dog (QuestionKey dogbark))
+	?c <- (Next-Question-Dog (QuestionKey dogsheddingobjection))
+	=>
+	(retract ?a ?b ?c)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;DEFFACTS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(deffacts DogSample
+		;;;;;;;;;;;;;;;;; FROM PETS ;;;;;;;;;;;;;;
+				
+	;(time Medium)				;; Possible Values - High, Medium, Low
+	;(home HDB)				;; Possible Values - HDB, Individual, Bungalow
+	;(children Yes)				;; Possible Values - Yes , No
+	;(patience No)				;; Possible Values - Yes, No
+	;(nature Energetic)			;; Possible Values - Energetic, Quiet, NotConcerned
+
+
+		;;;;;;;;;;;;;;;;;DOG SPECIFIC ;;;;;;;;;;;;
+	;(doghairlength Short)			;; Possible Values - Short, Medium, Long 
+	;(dogexercisetime Low)			;; Possible Values - Low, Medium, High
+	;(dogtrainingtime Yes)			;; Possible Values - Yes, NotSure
+	;(doggroomingtime High)			;; Possible Values - Low, Medium, High
+	;(dogbark NoCare)			;; Possible Values - Care, NoCare
+	;(dogsheddingobjection No)		;; Possible Values - Yes , No
+	;(dogpurposes WatchDog Companionship)		;; Possible Values - FamilyPet, Hunting, WatchDog, RodentCatcher, Companionship,
+							;;			Sports, No
+	
+	;(dogpurposes No)
+	
+	(DogAllowedBreeds (Name 
+				Affenpinscher 
+				AustralianTerrier 
+				BichonFrise 
+				BorderTerrier 
+				BostonTerrier 
+				ShihTzu 
+				TheJackRussellTerrier
+				Maltese
+				MiniatureSchnauzer
+				GoldenRetriever
+				Chihuahua 
+				Poodle
+				LabradorRetriever
+				Pomeranian
+			)
+	)
+	(DogBreed (BreedName Affenpinscher)(cf 0.0))
+	(DogBreed (BreedName AustralianTerrier)(cf 0.0))
+	(DogBreed (BreedName BichonFrise)(cf 0.0))
+	(DogBreed (BreedName BorderTerrier)(cf 0.0))
+	(DogBreed (BreedName BostonTerrier)(cf 0.0))
+	(DogBreed (BreedName ShihTzu)(cf 0.0))
+	(DogBreed (BreedName TheJackRussellTerrier)(cf 0.0))
+	(DogBreed (BreedName Maltese)(cf 0.0))
+	(DogBreed (BreedName MiniatureSchnauzer)(cf 0.0))
+	(DogBreed (BreedName GoldenRetriever)(cf 0.0))
+	(DogBreed (BreedName Chihuahua)(cf 0.0))
+	(DogBreed (BreedName Poodle)(cf 0.0))
+	(DogBreed (BreedName LabradorRetriever)(cf 0.0))
+	(DogBreed (BreedName Pomeranian)(cf 0.0))
+	
+	(Next-Question-Dog (QuestionKey dogexercisetime))
+	(Next-Question-Dog (QuestionKey dogtrainingtime))
+	(Next-Question-Dog (QuestionKey doggroomingtime))
+)	

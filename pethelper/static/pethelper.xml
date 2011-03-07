@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<qs>
+	<q q_key="rabbit_grooming" q_value="Do you have enough time to groom your rabbit?" > 
+		<a a_key="yes" a_value="No problem. I can take care of grooming my rabbit" /> 
+		<a a_key="no" a_value="Sorry. I don't want to waste time in grooming" /> 
+	</q>
+	<q q_key="rabbit_fur" q_value="Which of the below rabbit fur you would choose?" > 
+		<a a_key="normal" a_value="Normal fur" /> 
+		<a a_key="satin" a_value="Satin fur (transparent and shiny fur)" /> 
+		<a a_key="fancy" a_value="Fancy fur (fluffy, cuddly toy type fur)" />
+		<a a_key="rex" a_value="Rex fur (beautiful, irresistible to touch shimmering coats)" />
+	</q>
+	<q q_key="rabbit_size" q_value="What sized rabbit you would prefer?" > 
+		<a a_key="small" a_value="I want my rabbit to be small and compact" /> 
+		<a a_key="medium" a_value="I prefer having average sized rabbit" /> 
+		<a a_key="large" a_value="I love to have a giant rabbit" /> 
+	</q>
+	<q q_key="rabbit_purpose" q_value="What would be the best possible reason, for you to buy a rabbit?" > 
+		<a a_key="shows" a_value="I want to participate in bunny shows" /> 
+		<a a_key="love" a_value="I love playing with rabbits rather than participating in shows" /> 
+	</q>
+	<q q_key="rabbit_region" q_value="Do you have any preference for the breed region?" > 
+		<a a_key="american" a_value="Yes. I would like have to have an American rabbit" /> 
+		<a a_key="european" a_value="Yes. I prefer European breeds" /> 
+		<a a_key="nopreference" a_value="No. I do not have any preferences" /> 
+	</q>
+	<q q_key="rabbit_breedtype" q_value="Which breed type you would prefer?" > 
+		<a a_key="pure" a_value="Purebred" /> 	
+		<a a_key="mixed" a_value="Mixedbred" /> 
+	</q>
+	<q q_key="rabbit_climate" q_value="Which of the below best describe about your living climate?" > 
+		<a a_key="cold" a_value="I live in cold region" /> 
+		<a a_key="hot" a_value="I live in hot region" /> 
+		<a a_key="extreme" a_value="Often, there will be an extremes of hot and cold" /> 
+	</q>
+
+	<q q_key = "Q-BG1-01" q_value = "How much time you can dedicate to take care of your pet bird" >
+		<a a_key = "plenty" a_value = "I have plenty of spare time; I can spend for my bird care" />
+		<a a_key = "as-necessary" a_value = "I can spend time as-and-when-necessary" />
+		<a a_key = "very-less" a_value = "I'm busy most of the times; I can spend only a little time for bird care" />
+	</q>
+		<q q_key = "Q-BG1-02" q_value = "I would like to own a bird that" >
+		<a a_key = "attractive-colourful" a_value = "has very attractive appearance and colourful" />
+		<a a_key = "cute-no-so-colourful" a_value = "looks cute, but not so colourful" />
+		<a a_key = "normal-plain" a_value = "looks normal, neutral in attraction, is just in plain coloure, black or white anything" />
+		<a a_key = "no-pref" a_value = "No preferences" />
+	</q>
+	<q q_key = "Q-BG1-03" q_value = "I would like to" >
+		<a a_key = "light-weight" a_value = "play with the pet by carrying it in my hands (light-weight)" />
+		<a a_key = "medium-weight" a_value = "I want a medium sized bird" />
+		<a a_key = "heavy-weight" a_value = "I want a large bird" />
+	</q>
+	<q q_key = "Q-BG1-04" q_value = "I would like to own a bird that" >
+		<a a_key = "loud" a_value = "is very louder in voice" />
+		<a a_key = "mild" a_value = "milder in voice" />
+		<a a_key = "quiet" a_value = "is quiet all the time" />
+		<a a_key = "no-pref" a_value = "No preferences" />
+	</q>
+	<q q_key = "Q-BG2-01" q_value = "The bird is" >
+		<a a_key = "long-fly" a_value = "Very good flier; able to Fly High and Long" />
+		<a a_key = "short-fly" a_value = "Fly short distance only (with in few meters)" />
+		<a a_key = "no-fly" a_value = "No high fly, just jump/walk here and there" />
+	</q>
+	<q q_key = "Q-BG2-02" q_value = "I prefer a bird that is able to / capable of learning to" >
+		<a a_key = "talk" a_value = "Talk" />
+		<a a_key = "mimic" a_value = "Mimic human speech / voices" />
+		<a a_key = "dance" a_value = "Dance" />
+		<a a_key = "tricks" a_value = "Perform Tricks " />
+	</q>
+	<q q_key = "Q-BG2-03" q_value = "I'm looking for a bird" >
+		<a a_key = "short-life" a_value = "with short life-span ( less than 5 yrs)" />
+		<a a_key = "med-life" a_value = "that must be with child until he goes to university ( 6 - 15 yrs)" />
+		<a a_key = "long-life" a_value = "that must live longer (16 - 30 yrs)" />
+		<a a_key = "very-long-life" a_value = "that must live very longer ( more than 30 yrs)" />
+	</q>
+	<q q_key = "Q-BG2-04" q_value = "Are you alright, if the bird causes harm to your family members / damages household properties?" >
+		<a a_key = "harm-less" a_value = "No, the pet bird should not harm us or damage our properties" />
+		<a a_key = "harm-medium" a_value = "It's alright as long as the damage is minimal" />
+		<a a_key = "harm-high" a_value = "Never mind about that." />
+	</q>
+	<q q_key = "Q-BG2-05" q_value = "I prefer to have" >
+		<a a_key = "single" a_value = "A single bird - able to live alone happily" />
+		<a a_key = "pair" a_value = "Pair of birds - able and prefer to live in pairs" />
+		<a a_key = "small-group" a_value = "Small Groups - normally live in small groups (above 3 and below 6)" />
+		<a a_key = "large-group" a_value = "Large Groups - normally live in larger groups (above 6)" />
+	</q>
+	<q q_key = "Q-BG3-01" q_value = "My bird should support (entertain us)" >
+		<a a_key = "high" a_value = "High level of interaction (often)" />
+		<a a_key = "moderate" a_value = "Moderate level of interaction (once-in-a-day)" />
+		<a a_key = "low" a_value = "Low in interaction (twice-in-a-week)" />
+	</q>
+	<q q_key = "Q-BG3-02" q_value = "The new pet bird must attach with me and my family" >
+		<a a_key = "very-quick" a_value = "Very Quickly (with in a weeks time)" />
+		<a a_key = "reasonably-quick" a_value = "Reasonably Quickly (Within a month)" />
+		<a a_key = "slow" a_value = "Can take it's own time (one-to-three months)" />
+		<a a_key = "very-slow" a_value = "Never mind about the time taken." />
+	</q>
+	<q q_key = "Q-BG3-03" q_value = "I think that I will" >
+		<a a_key = "move-freely" a_value = "Allow the bird to freely roam in my home/garden for most of the time" />
+		<a a_key = "move-restricted" a_value = "Occasionally allow the bird to come out of the cage." />
+		<a a_key = "move-prohibit" a_value = "Never allow the bird to come out of it's cage" />
+	</q>
+	<q q_key = "Q-BG3-05" q_value = "I'm looking for a bird with" >
+		<a a_key = "limited" a_value = "Limited availablity - a special species, very rare in the market and difficult for others to adopt or purchase" />
+		<a a_key = "common" a_value = "Common availablility - in the local pet-store and easy to purchase" />
+		<a a_key = "local" a_value = "Available locally / with local breeders in Singapore" />
+		<a a_key = "import" a_value = "Imported from overseas" />
+		<a a_key = "no-pref" a_value = "No Preferences" />
+	</q>
+	<q q_key = "Q-BG3-06" q_value = "I want to go for a bird that is" >
+		<a a_key = "very-popular" a_value = "Very Popular among general public" />
+		<a a_key = "known-to-pet-lovers" a_value = "Known only to pet-lovers" />
+		<a a_key = "less-known" a_value = "I'm OK with an unknown breed as well" />
+		<a a_key = "no-pref" a_value = "No Preferences" />
+	</q>
+	<q q_key="preference" q_value="Do you have any preference?" check_yes="1" > 
+		<a a_key="Rabbit" a_value="Rabbit" /> 
+		<a a_key="Dog" a_value="Dog" /> 
+		<a a_key="Bird" a_value="Bird" /> 
+		<a a_key="Fish" a_value="Fish" /> 
+		<a a_key="No" a_value="Nothing" /> 
+	</q>
+		<q q_key="time" q_value="Do you have enough time to spend with your pet?" > 
+		<a a_key="High" a_value="Yes. I have plenty of time" /> 
+		<a a_key="Medium" a_value="I can manage my time for the pet" /> 
+		<a a_key="Low" a_value="Sorry, I am a busy person" /> 
+	</q>
+		<q q_key="patience" q_value="Which of the below option best describe you?" > 
+		<a a_key="Yes" a_value="I love playing with pet" /> 
+		<a a_key="No" a_value="I don't have patience to run behind pet" /> 
+	</q>
+	<q q_key="children" q_value="Do you have any kids at home?" > 
+		<a a_key="Yes" a_value="Yes" /> 
+		<a a_key="No" a_value="No" /> 
+	</q>
+	<q q_key="cost" q_value="How much can you afford for your pet?" > 
+		<a a_key="Concerned" a_value="My financier is too concerned about money" /> 
+		<a a_key="Reasonable" a_value="I am partly concerned about spending money" /> 
+		<a a_key="NotConcerned" a_value="I really don't care spending for my pet" /> 
+	</q>
+	<q q_key="size" q_value="Do you mind having a bigger pet?" > 
+		<a a_key="Small" a_value="No. I prefer smaller pet" /> 
+		<a a_key="Medium" a_value="I don't want big sized pet" /> 
+		<a a_key="Large" a_value="I like big sized pet size" /> 
+	</q>
+	<q q_key="nature" q_value="What nature of pet you would best prefer?" > 
+		<a a_key="Energetic" a_value="I want my pet to be energetic" /> 
+		<a a_key="Quiet" a_value="I prefer quiet pet" /> 
+		<a a_key="NotConcerned" a_value="I don't care about my pet's nature" /> 
+	</q>
+	<q q_key="veg" q_value="Do you want your pet to be a vegetarian?" > 
+		<a a_key="Yes" a_value="Yes" /> 
+		<a a_key="NotConcerned" a_value="Never mind" /> 
+	</q>
+	<q q_key="home" q_value="Tell me about your home?" > 
+		<a a_key="HDB" a_value="I live in an apartment (HDB, Private apartment)" /> 
+		<a a_key="Individual" a_value="I live in an individual home" /> 
+		<a a_key="Bungalow" a_value="I live in bungalow" /> 
+	</q>
+	<q q_key="landscaping" q_value="How much do you care about your home?" > 
+		<a a_key="NT" a_value="Should always be neat and tidy" /> 
+		<a a_key="OA" a_value="Ok with occasional accidents by pets" /> 
+		<a a_key="NotConcerned" a_value="No concerns, it's my home" /> 
+	</q>
+	<q q_key="otherpets" q_value="Do you already have any other pets at home?" > 
+		<a a_key="YesAquarium" a_value="Yes. I have a small aquarium" /> 
+		<a a_key="YesBirds" a_value="Yes. I have few birds" /> 
+		<a a_key="YesBig" a_value="Yes. I already have a big pet" /> 
+		<a a_key="No" a_value="Nope" /> 
+	</q>
+	<q q_key="fish_color" q_value="How colourful do you want the aquarium to be?" > 
+		<a a_key="fish_golden" a_value="Golden colour - gold colour the best for fishes" /> 
+		<a a_key="fish_colourful" a_value="Colourful - aquarium should be colourful" /> 
+		<a a_key="fish_black" a_value="black... black... black..." /> 
+		<a a_key="fish_nothing" a_value="Every colour has its beauty, so nothing specific" /> 
+	</q>
+	<q q_key="fish_decorations" q_value="How decorative should your fish tank be?" > 
+		<a a_key="fish_high" a_value="My decoratives should be more appealing than fish" /> 
+		<a a_key="fish_avg" a_value="I would add some, but only if my fishes like them" /> 
+		<a a_key="fish_low" a_value="I am simple, so should be the fish tank" /> 
+	</q>
+	<q q_key="fish_plant" q_value="Any water-plants allowed in fish tank?" > 
+		<a a_key="fish_never" a_value="No, I hate plants in my fish tank" /> 
+		<a a_key="fish_avg" a_value="If good for fish then no problem" /> 
+		<a a_key="fish_lots" a_value="I love plants, it should be everywhere" /> 
+	</q>
+	<q q_key="fish_expert" q_value="Have you set an aquarium before?" > 
+		<a a_key="fish_yes" a_value="Yes I had one before" /> 
+		<a a_key="fish_no" a_value="No, I am a novice" /> 
+		<a a_key="fish_watched" a_value="I haven't had but know how to set one" /> 
+	</q>
+	<q q_key="fish_tanksize" q_value="Choose your preference of fish tank?" > 
+		<a a_key="fish_big_small" a_value="Need a big tank with lots of tiny fishes" /> 
+		<a a_key="fish_big_big" a_value="Need a big tank with few big fishes" /> 
+		<a a_key="fish_small_big" a_value="Need a small tank with very few big fishes" /> 
+		<a a_key="fish_small_small" a_value="Need a small tank with few small fishes" /> 
+		<a a_key="fish_no" a_value="As long as its aquarium i dont bother" />
+	</q>
+	<q q_key="fish_variety" q_value="Choose the nature of fish?" > 
+		<a a_key="fish_fight_own" a_value="As long as its good with other breeds" /> 
+		<a a_key="fish_fight" a_value="I loveee fish fights" /> 
+		<a a_key="fish_peaceful" a_value="I am a Gandhian, I believe only in peace" /> 
+	</q>
+	<q q_key="dogexercisetime" q_value="How much daily exercise can you give your dog?" >
+		<a a_key="Low" a_value="less than 15 Mins" />
+		<a a_key="Medium" a_value="15 - 30mins" />
+		<a a_key="High" a_value="more than 30 Mins" />
+	</q>
+	<q q_key="dogtrainingtime" q_value="How about Training time for your dog?" >
+		<a a_key="Yes" a_value="I can give my Dog the required Training it needs" />
+		<a a_key="NotSure" a_value="Am not Sure about it" />
+	</q>
+	<q q_key="doggroomingtime" q_value="Grooming time?" >
+		<a a_key="Low" a_value="I can just provide Occasional Grooming" />
+		<a a_key="Medium" a_value="I can do Regular Grooming but not very Extensive." />
+		<a a_key="High" a_value="I can manage this.(I can take to Grooming Service or Hire Professional)" />
+	</q>
+	<q q_key="doghairlength" q_value="Choose an option for Dog's Hair Preference" >
+		<a a_key="Short" a_value="I prefer a Short Hair Dog" />
+		<a a_key="Medium" a_value="I prefer Medium Hair Dog" />
+		<a a_key="Long" a_value="I can go for Long Hair Dog" />
+	</q>
+	<q q_key="dogbark" q_value="Do you care if the Dog Barks a Lot?" >
+		<a a_key="Care" a_value="OfCourse. Who wouldn't??" />
+		<a a_key="NoCare" a_value="Nah. I am fine with this." />
+	</q>
+	<q q_key="dogsheddingobjection" q_value="Do you have any Objection to Dogs that shed a Lot?" >
+		<a a_key="Yes" a_value="Yes. I am little worried about allergies." />
+		<a a_key="No" a_value="No.Not at all a Problem." />
+	</q>
+
+	<breed breed_key="rabbit_calif" breed_value="Californian Rabbit" />
+	<breed breed_key="rabbit_chinchilla" breed_value="American Chinchilla Rabbit" />
+	<breed breed_key="rabbit_nd_dwarf" breed_value="Netherlands dwarf rabbit" />
+	<breed breed_key="rabbit_dwarf_lop" breed_value="Dwarf lop rabbit" />
+	<breed breed_key="rabbit_fl_giant" breed_value="Flemish giant rabbit" />
+	<breed breed_key="rabbit_havana" breed_value="Havana rabbit" />
+	<breed breed_key="rabbit_std_rex" breed_value="Standard Rex rabbit" />
+	<breed breed_key="rabbit_himalayan" breed_value="Himalayan rabbit" />
+	<breed breed_key="rabbit_giant_angora" breed_value="Giant angora rabbit" />
+	<breed breed_key="rabbit_satin_angora" breed_value="Satin angora rabbit" />
+
+	<breed breed_key="Affenpinscher" breed_value="Affenpinscher" />
+	<breed breed_key="AustralianTerrier" breed_value="Australian Terrier" />
+	<breed breed_key="BichonFrise" breed_value="Bichon Frise" />
+	<breed breed_key="BorderTerrier" breed_value="Border Terrier" />
+	<breed breed_key="BostonTerrier" breed_value="Boston Terrier" />
+	<breed breed_key="ShihTzu" breed_value="Shih Tzu" />
+	<breed breed_key="TheJackRussellTerrier" breed_value="The Jack Russell Terrier" />
+	<breed breed_key="Maltese" breed_value="Maltese" />
+	<breed breed_key="MiniatureSchnauzer" breed_value="Miniature Schnauzer" />
+	<breed breed_key="GoldenRetriever" breed_value="Golden Retriever" />
+	<breed breed_key="Chihuahua" breed_value="Chihuahua" />
+	<breed breed_key="Poodle" breed_value="Poodle" />
+	<breed breed_key="LabradorRetriever" breed_value="Labrador Retriever" />
+	<breed breed_key="Pomeranian" breed_value="Pomeranian" />
+
+	<breed breed_key="fish_bkl"	breed_value="Black Kuhli Loach" />
+	<breed breed_key="fish_gae"	breed_value="Golden algea eater" />
+	<breed breed_key="fish_ae"	breed_value="Algae eather" />
+	<breed breed_key="fish_bgk"	breed_value="Black Ghost Knife" />
+	<breed breed_key="fish_gtb"	breed_value="Golden Tiger Barb" />
+	<breed breed_key="fish_se"	breed_value="Synodontis Eupterus" />
+	<breed breed_key="fish_gpt"	breed_value="Golden Pristella Tetra" />
+	<breed breed_key="fish_rs"	breed_value="Rainbow Shark" />
+	<breed breed_key="fish_rtb"	breed_value="Red Tail Botia" />
+
+    <breed breed_key="BIRD-01" breed_value="Cockatiels" />
+    <breed breed_key="BIRD-02" breed_value="Umbrella Cockatoos" />
+    <breed breed_key="BIRD-03" breed_value="Galah Cockatoos" />
+    <breed breed_key="BIRD-04" breed_value="Goffin's Cockatoos " />
+    <breed breed_key="BIRD-05" breed_value="Palm Cockatoos" />
+    <breed breed_key="BIRD-06" breed_value="Moluccan Cockatoos " />
+    <breed breed_key="BIRD-07" breed_value="Little Corellas" />
+    <breed breed_key="BIRD-08" breed_value="Sulphur-crested Cockatoos" />
+    <breed breed_key="BIRD-11" breed_value="Blue-and-yellow Macaw" />
+    <breed breed_key="BIRD-12" breed_value="Alexandrine Parakeet " />
+    <breed breed_key="BIRD-13" breed_value="Blue Winged Parakeets" />
+    <breed breed_key="BIRD-14" breed_value="Superb Parrot" />
+
+	<pet pet_key="Fish" pet_value="Fish" />
+	<pet pet_key="Bird" pet_value="Bird" />
+	<pet pet_key="Dog" pet_value="Dog" />
+	<pet pet_key="Rabbit" pet_value="Rabbit" />
+
+</qs>
